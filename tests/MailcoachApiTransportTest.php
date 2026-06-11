@@ -219,7 +219,7 @@ it('can process the store header', function () {
     $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
         $body = json_decode($options['body'], true);
 
-        expect($body['store'])->toBe('1');
+        expect($body['store'])->toBe('0');
 
         return new MockResponse('', ['http_code' => 204]);
     });
@@ -233,7 +233,7 @@ it('can process the store header', function () {
         ->text('The text content')
         ->html('The html content');
 
-    $mail->getHeaders()->add(new StoreHeader());
+    $mail->getHeaders()->add(new StoreHeader(false));
 
     $transport->send($mail);
 });
@@ -242,7 +242,7 @@ it('can process the store content header', function () {
     $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
         $body = json_decode($options['body'], true);
 
-        expect($body['store_content'])->toBe('1');
+        expect($body['store_content'])->toBe('0');
 
         return new MockResponse('', ['http_code' => 204]);
     });
@@ -256,7 +256,7 @@ it('can process the store content header', function () {
         ->text('The text content')
         ->html('The html content');
 
-    $mail->getHeaders()->add(new StoreContentHeader());
+    $mail->getHeaders()->add(new StoreContentHeader(false));
 
     $transport->send($mail);
 });

@@ -8,8 +8,8 @@ use Symfony\Component\Mime\Header\UnstructuredHeader;
 
 class StoreHeader extends UnstructuredHeader
 {
-    public function __construct(string $value = '1')
+    public function __construct(bool $value = true)
     {
-        parent::__construct('X-Mailcoach-Store', $value);
+        parent::__construct('X-Mailcoach-Store', $value ? '1' : '0');
     }
 }
