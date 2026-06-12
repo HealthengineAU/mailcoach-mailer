@@ -2,6 +2,14 @@
 
 All notable changes to `mailcoach-mailer` will be documented in this file.
 
+## 1.4.0 - 2026-06-11
+
+### What's Changed
+
+* Add store header to pass `store` to the API request
+* Add store content header to pass `store_content` to the API request (`store_content` is a custom request parameter
+  that must be implemented yourself in a self-hosted Mailcoach to function)
+
 ## 1.3.1 - 2026-02-09
 
 ### What's Changed

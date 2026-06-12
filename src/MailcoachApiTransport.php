@@ -10,6 +10,8 @@ use Spatie\MailcoachMailer\Exceptions\NotAllowedToSendMail;
 use Spatie\MailcoachMailer\Headers\FakeHeader;
 use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
+use Spatie\MailcoachMailer\Headers\StoreContentHeader;
+use Spatie\MailcoachMailer\Headers\StoreHeader;
 use Spatie\MailcoachMailer\Headers\TransactionalMailHeader;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Exception\HttpTransportException;
@@ -111,6 +113,14 @@ class MailcoachApiTransport extends AbstractApiTransport
 
             if ($header instanceof FakeHeader) {
                 $payload['fake'] = $header->getValue();
+            }
+
+            if ($header instanceof StoreHeader) {
+                $payload['store'] = $header->getValue();
+            }
+
+            if ($header instanceof StoreContentHeader) {
+                $payload['store_content'] = $header->getValue();
             }
         }
 
