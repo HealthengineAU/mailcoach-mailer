@@ -58,9 +58,6 @@ class MailcoachApiTransport extends AbstractApiTransport
 
         try {
             $statusCode = $response->getStatusCode();
-            $result = $response->toArray(false);
-        } catch (DecodingExceptionInterface) {
-            throw new HttpTransportException('Unable to send an email: '. $response->getContent(false) . \sprintf(' (code %d).', $statusCode), $response);
         } catch (TransportExceptionInterface $exception) {
             throw new HttpTransportException('Could not reach the remote Mailcoach server.', $response, 0, $exception);
         }
@@ -77,7 +74,12 @@ class MailcoachApiTransport extends AbstractApiTransport
             throw new HttpTransportException('Unable to send an email: '. $response->getContent(false) . \sprintf(' (code %d).', $statusCode), $response);
         }
 
-        $sentMessage->setMessageId($result['uuid']);
+        try {
+            $result = $response->toArray(false);
+            $sentMessage->setMessageId($result['uuid']);
+        } catch (DecodingExceptionInterface) {
+            throw new HttpTransportException('Unable to send an email: '. $response->getContent(false) . \sprintf(' (code %d).', $statusCode), $response);
+        }
 
         return $response;
     }
