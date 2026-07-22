@@ -2,6 +2,14 @@
 
 All notable changes to `mailcoach-mailer` will be documented in this file.
 
+## 1.5.0 - 2026-07-22
+
+### What's Changed
+
+* Mailcoach transactional message log item UUID is set as the message ID on `SentMessage`. Use
+  `SentMessage::getMessageId()` to retrieve it.
+* Removed store header that was used to pass `store` to the API request.
+
 ## 1.4.0 - 2026-06-11
 
 ### What's Changed
