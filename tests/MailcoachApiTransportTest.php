@@ -5,7 +5,6 @@ use Spatie\MailcoachMailer\Headers\FakeHeader;
 use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
 use Spatie\MailcoachMailer\Headers\StoreContentHeader;
-use Spatie\MailcoachMailer\Headers\StoreHeader;
 use Spatie\MailcoachMailer\Headers\TransactionalMailHeader;
 use Spatie\MailcoachMailer\MailcoachApiTransport;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -36,7 +35,7 @@ it('can send an email', function () {
         expect($body['text'])->toBe('The text content');
         expect($body['html'])->toBe('The html content');
 
-        return new MockResponse('', ['http_code' => 204]);
+        return new MockResponse('{"uuid":"0d834df6-c8c8-49b6-a84a-142e627b5b8f"}', ['http_code' => 200]);
     });
 
     $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
@@ -69,7 +68,7 @@ it('can send a plaintext email', function () {
         expect($body['text'])->toBe('The text content');
         expect($body['html'])->toBeNull();
 
-        return new MockResponse('', ['http_code' => 204]);
+        return new MockResponse('{"uuid":"f131da53-fa12-4971-9b03-38113977eff7"}', ['http_code' => 200]);
     });
 
     $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
@@ -92,7 +91,7 @@ it('can process the transactional mail header', function () {
 
         expect($body['mail_name'])->toBe('my_template');
 
-        return new MockResponse('', ['http_code' => 204]);
+        return new MockResponse('{"uuid":"b0269e39-4086-436d-87d1-e600fd013e86"}', ['http_code' => 200]);
     });
 
     $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
@@ -115,7 +114,7 @@ it('can process the mailer header', function () {
 
         expect($body['mailer'])->toBe('transactional-mailer');
 
-        return new MockResponse('', ['http_code' => 204]);
+        return new MockResponse('{"uuid":"4b8be10e-946d-4082-add3-b168532344a7"}', ['http_code' => 200]);
     });
 
     $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
@@ -138,7 +137,7 @@ it('can process the fake header', function () {
 
         expect($body['fake'])->toBe('1');
 
-        return new MockResponse('', ['http_code' => 204]);
+        return new MockResponse('{"uuid":"e2ee7ba1-f54d-430b-bc92-f3eb2161e55e"}', ['http_code' => 200]);
     });
 
     $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
@@ -157,7 +156,7 @@ it('can process the fake header', function () {
 
 it('throws when trying to define it twice', function () {
     $client = new MockHttpClient(function (): ResponseInterface {
-        return new MockResponse('', ['http_code' => 204]);
+        return new MockResponse('{"uuid":"07da0c8a-9ad2-4910-b931-3f7a4e255b5b"}', ['http_code' => 200]);
     });
 
     $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
@@ -185,7 +184,7 @@ it('can pass through replacements', function () {
         expect($body['replacements']['last_name'])->toBe('Doe');
         expect($body['replacements']['array'])->toBe(['foo', 'bar']);
 
-        return new MockResponse('', ['http_code' => 204]);
+        return new MockResponse('{"uuid":"6413b7c9-a730-47a8-83ac-ad5a14777e43"}', ['http_code' => 200]);
     });
 
     $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
@@ -215,36 +214,13 @@ it('will throw an exception if the host is not set', function () {
     $transport->send($mail);
 })->throws(NoHostSet::class);
 
-it('can process the store header', function () {
-    $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
-        $body = json_decode($options['body'], true);
-
-        expect($body['store'])->toBe('0');
-
-        return new MockResponse('', ['http_code' => 204]);
-    });
-
-    $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
-
-    $mail = (new Email)
-        ->subject('My subject')
-        ->to(new Address('to@example.com', 'To name'))
-        ->from(new Address('from@example.com', 'From name'))
-        ->text('The text content')
-        ->html('The html content');
-
-    $mail->getHeaders()->add(new StoreHeader(false));
-
-    $transport->send($mail);
-});
-
 it('can process the store content header', function () {
     $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
         $body = json_decode($options['body'], true);
 
         expect($body['store_content'])->toBe('0');
 
-        return new MockResponse('', ['http_code' => 204]);
+        return new MockResponse('{"uuid":"f6196d80-61b2-421e-90a6-71a3770b9df1"}', ['http_code' => 200]);
     });
 
     $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
@@ -259,4 +235,24 @@ it('can process the store content header', function () {
     $mail->getHeaders()->add(new StoreContentHeader(false));
 
     $transport->send($mail);
+});
+
+it('sets Mailcoach UUID as message ID', function (): void {
+    $expectedUuid = '5077e872-21bf-40c0-a58a-abe2aa16ba54';
+
+    $client = new MockHttpClient(
+        fn (): ResponseInterface => new MockResponse('{"uuid": "' . $expectedUuid . '"}', ['http_code' => 200])
+    );
+
+    $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
+
+    $mail = (new Email)
+        ->from('from@from.com')
+        ->subject('Subject line')
+        ->text('Body text')
+        ->to('to@to.com');
+
+    $sentMessage = $transport->send($mail);
+
+    expect($sentMessage->getMessageId())->toBe($expectedUuid);
 });

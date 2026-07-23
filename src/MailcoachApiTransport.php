@@ -11,7 +11,6 @@ use Spatie\MailcoachMailer\Headers\FakeHeader;
 use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
 use Spatie\MailcoachMailer\Headers\StoreContentHeader;
-use Spatie\MailcoachMailer\Headers\StoreHeader;
 use Spatie\MailcoachMailer\Headers\TransactionalMailHeader;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Exception\HttpTransportException;
@@ -59,13 +58,11 @@ class MailcoachApiTransport extends AbstractApiTransport
 
         try {
             $statusCode = $response->getStatusCode();
-        } catch (DecodingExceptionInterface) {
-            throw new HttpTransportException("Unable to send an email to {$payload['to']}.", $response);
         } catch (TransportExceptionInterface $exception) {
             throw new HttpTransportException('Could not reach the remote Mailcoach server.', $response, 0, $exception);
         }
 
-        if (! in_array($statusCode, [200, 204])) {
+        if ($statusCode !== 200) {
             if ($statusCode === 403) {
                 throw NotAllowedToSendMail::make($response->getContent(false));
             }
@@ -74,7 +71,14 @@ class MailcoachApiTransport extends AbstractApiTransport
                 throw EmailNotValid::make($response->getContent(false));
             }
 
-            throw new HttpTransportException("Unable to send an email to {$payload['to']} (code {$statusCode}).", $response);
+            throw new HttpTransportException('Unable to send an email: '. $response->getContent(false) . \sprintf(' (code %d).', $statusCode), $response);
+        }
+
+        try {
+            $result = $response->toArray(false);
+            $sentMessage->setMessageId($result['uuid']);
+        } catch (DecodingExceptionInterface) {
+            throw new HttpTransportException('Unable to send an email: '. $response->getContent(false) . \sprintf(' (code %d).', $statusCode), $response);
         }
 
         return $response;
@@ -113,10 +117,6 @@ class MailcoachApiTransport extends AbstractApiTransport
 
             if ($header instanceof FakeHeader) {
                 $payload['fake'] = $header->getValue();
-            }
-
-            if ($header instanceof StoreHeader) {
-                $payload['store'] = $header->getValue();
             }
 
             if ($header instanceof StoreContentHeader) {
