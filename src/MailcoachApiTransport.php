@@ -8,6 +8,8 @@ use Spatie\MailcoachMailer\Exceptions\EmailNotValid;
 use Spatie\MailcoachMailer\Exceptions\NoHostSet;
 use Spatie\MailcoachMailer\Exceptions\NotAllowedToSendMail;
 use Spatie\MailcoachMailer\Headers\FakeHeader;
+use Spatie\MailcoachMailer\Headers\GoogleAnalyticsCampaignHeader;
+use Spatie\MailcoachMailer\Headers\GoogleAnalyticsDomainsHeader;
 use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
 use Spatie\MailcoachMailer\Headers\StoreContentHeader;
@@ -121,6 +123,14 @@ class MailcoachApiTransport extends AbstractApiTransport
 
             if ($header instanceof StoreContentHeader) {
                 $payload['store_content'] = $header->getValue();
+            }
+
+            if ($header instanceof GoogleAnalyticsCampaignHeader) {
+                $payload['google_analytics_campaign'] = $header->getValue();
+            }
+
+            if ($header instanceof GoogleAnalyticsDomainsHeader) {
+                $payload['google_analytics_domains'] = json_decode($header->getValue(), true);
             }
         }
 
