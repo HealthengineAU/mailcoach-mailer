@@ -2,6 +2,13 @@
 
 All notable changes to `mailcoach-mailer` will be documented in this file.
 
+## 1.6.0 - 2026-07-30
+
+### What's Changed
+
+* Add UTM headers to pass `utm_source`, `utm_medium` and `utm_campaign` to the API request (these are custom request
+  parameters that must be implemented yourself in a self-hosted Mailcoach to function)
+
 ## 1.5.0 - 2026-07-22
 
 ### What's Changed

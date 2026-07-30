@@ -12,6 +12,9 @@ use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
 use Spatie\MailcoachMailer\Headers\StoreContentHeader;
 use Spatie\MailcoachMailer\Headers\TransactionalMailHeader;
+use Spatie\MailcoachMailer\Headers\UtmCampaignHeader;
+use Spatie\MailcoachMailer\Headers\UtmMediumHeader;
+use Spatie\MailcoachMailer\Headers\UtmSourceHeader;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Exception\HttpTransportException;
 use Symfony\Component\Mailer\Exception\TransportException;
@@ -121,6 +124,18 @@ class MailcoachApiTransport extends AbstractApiTransport
 
             if ($header instanceof StoreContentHeader) {
                 $payload['store_content'] = $header->getValue();
+            }
+
+            if ($header instanceof UtmSourceHeader) {
+                $payload['utm_source'] = $header->getValue();
+            }
+
+            if ($header instanceof UtmMediumHeader) {
+                $payload['utm_medium'] = $header->getValue();
+            }
+
+            if ($header instanceof UtmCampaignHeader) {
+                $payload['utm_campaign'] = $header->getValue();
             }
         }
 
