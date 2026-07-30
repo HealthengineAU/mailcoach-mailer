@@ -2,13 +2,11 @@
 
 use Spatie\MailcoachMailer\Exceptions\NoHostSet;
 use Spatie\MailcoachMailer\Headers\FakeHeader;
+use Spatie\MailcoachMailer\Headers\GoogleAnalyticsCampaignHeader;
 use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
 use Spatie\MailcoachMailer\Headers\StoreContentHeader;
 use Spatie\MailcoachMailer\Headers\TransactionalMailHeader;
-use Spatie\MailcoachMailer\Headers\UtmCampaignHeader;
-use Spatie\MailcoachMailer\Headers\UtmMediumHeader;
-use Spatie\MailcoachMailer\Headers\UtmSourceHeader;
 use Spatie\MailcoachMailer\MailcoachApiTransport;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -240,13 +238,11 @@ it('can process the store content header', function () {
     $transport->send($mail);
 });
 
-it('can process the utm headers', function () {
+it('can process the google analytics campaign header', function () {
     $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
         $body = json_decode($options['body'], true);
 
-        expect($body['utm_source'])->toBe('newsletter');
-        expect($body['utm_medium'])->toBe('email');
-        expect($body['utm_campaign'])->toBe('summer_sale');
+        expect($body['google_analytics_campaign'])->toBe('summer_sale');
 
         return new MockResponse('{"uuid":"9bb3d1d0-3f2a-4c0e-9c5f-2a6cbe1f1a4d"}', ['http_code' => 200]);
     });
@@ -260,18 +256,16 @@ it('can process the utm headers', function () {
         ->text('The text content')
         ->html('The html content');
 
-    $mail->getHeaders()->add(new UtmSourceHeader('newsletter'));
-    $mail->getHeaders()->add(new UtmMediumHeader('email'));
-    $mail->getHeaders()->add(new UtmCampaignHeader('summer_sale'));
+    $mail->getHeaders()->add(new GoogleAnalyticsCampaignHeader('summer_sale'));
 
     $transport->send($mail);
 });
 
-it('does not add utm keys to the payload when the headers are absent', function () {
+it('does not add the campaign key to the payload when the header is absent', function () {
     $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
         $body = json_decode($options['body'], true);
 
-        expect($body)->not->toHaveKeys(['utm_source', 'utm_medium', 'utm_campaign']);
+        expect($body)->not->toHaveKey('google_analytics_campaign');
 
         return new MockResponse('{"uuid":"1a0d3d4f-1f5b-4a5e-8a6b-0d5f3c2b1e90"}', ['http_code' => 200]);
     });

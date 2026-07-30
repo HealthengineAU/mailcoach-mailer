@@ -6,8 +6,8 @@ All notable changes to `mailcoach-mailer` will be documented in this file.
 
 ### What's Changed
 
-* Add UTM headers to pass `utm_source`, `utm_medium` and `utm_campaign` to the API request (these are custom request
-  parameters that must be implemented yourself in a self-hosted Mailcoach to function)
+* Add Google Analytics campaign header to pass `google_analytics_campaign` to the API request (`google_analytics_campaign` is a
+  custom request parameter that must be implemented yourself in a self-hosted Mailcoach to function)
 
 ## 1.5.0 - 2026-07-22
 
