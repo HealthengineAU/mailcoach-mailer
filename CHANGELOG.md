@@ -6,8 +6,10 @@ All notable changes to `mailcoach-mailer` will be documented in this file.
 
 ### What's Changed
 
-* Add Google Analytics campaign header to pass `google_analytics_campaign` to the API request (`google_analytics_campaign` is a
-  custom request parameter that must be implemented yourself in a self-hosted Mailcoach to function)
+* Add Google Analytics campaign header to pass `google_analytics_campaign` to the API request
+* Add Google Analytics domains header to pass `google_analytics_domains` to the API request (`google_analytics_campaign`
+  and `google_analytics_domains` are custom request parameters that must be implemented yourself in a self-hosted
+  Mailcoach to function)
 
 ## 1.5.0 - 2026-07-22
 

@@ -3,6 +3,7 @@
 use Spatie\MailcoachMailer\Exceptions\NoHostSet;
 use Spatie\MailcoachMailer\Headers\FakeHeader;
 use Spatie\MailcoachMailer\Headers\GoogleAnalyticsCampaignHeader;
+use Spatie\MailcoachMailer\Headers\GoogleAnalyticsDomainsHeader;
 use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
 use Spatie\MailcoachMailer\Headers\StoreContentHeader;
@@ -261,11 +262,34 @@ it('can process the google analytics campaign header', function () {
     $transport->send($mail);
 });
 
-it('does not add the campaign key to the payload when the header is absent', function () {
+it('can process the google analytics domains header', function () {
     $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
         $body = json_decode($options['body'], true);
 
-        expect($body)->not->toHaveKey('google_analytics_campaign');
+        expect($body['google_analytics_domains'])->toBe(['example.com', 'example.org']);
+
+        return new MockResponse('{"uuid":"c4d2e0f8-6b1a-4e7d-9c3b-5a8f2d1e0b76"}', ['http_code' => 200]);
+    });
+
+    $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
+
+    $mail = (new Email)
+        ->subject('My subject')
+        ->to(new Address('to@example.com', 'To name'))
+        ->from(new Address('from@example.com', 'From name'))
+        ->text('The text content')
+        ->html('The html content');
+
+    $mail->getHeaders()->add(new GoogleAnalyticsDomainsHeader(['example.com', 'example.org']));
+
+    $transport->send($mail);
+});
+
+it('does not add the google analytics keys to the payload when the headers are absent', function () {
+    $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
+        $body = json_decode($options['body'], true);
+
+        expect($body)->not->toHaveKeys(['google_analytics_campaign', 'google_analytics_domains']);
 
         return new MockResponse('{"uuid":"1a0d3d4f-1f5b-4a5e-8a6b-0d5f3c2b1e90"}', ['http_code' => 200]);
     });
