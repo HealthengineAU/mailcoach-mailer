@@ -8,6 +8,7 @@ use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
 use Spatie\MailcoachMailer\Headers\StoreContentHeader;
 use Spatie\MailcoachMailer\Headers\TransactionalMailHeader;
+use Spatie\MailcoachMailer\Headers\WebhookHeader;
 use Spatie\MailcoachMailer\MailcoachApiTransport;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -324,4 +325,27 @@ it('sets Mailcoach UUID as message ID', function (): void {
     $sentMessage = $transport->send($mail);
 
     expect($sentMessage->getMessageId())->toBe($expectedUuid);
+});
+
+it('can process the webhook header', function () {
+    $client = new MockHttpClient(function (string $method, string $url, array $options): ResponseInterface {
+        $body = json_decode($options['body'], true);
+
+        expect($body['webhook'])->toBe('https://spatie.be/');
+
+        return new MockResponse('{"uuid":"9bb3d1d0-3f2a-4c0e-9c5f-2a6cbe1f1a4d"}', ['http_code' => 200]);
+    });
+
+    $transport = (new MailcoachApiTransport('fake-api-token', $client))->setHost('domain.mailcoach.app');
+
+    $mail = (new Email)
+        ->subject('My subject')
+        ->to(new Address('to@example.com', 'To name'))
+        ->from(new Address('from@example.com', 'From name'))
+        ->text('The text content')
+        ->html('The html content');
+
+    $mail->getHeaders()->add(new WebhookHeader('https://spatie.be/'));
+
+    $transport->send($mail);
 });
