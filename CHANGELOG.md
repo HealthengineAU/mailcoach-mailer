@@ -2,6 +2,12 @@
 
 All notable changes to `mailcoach-mailer` will be documented in this file.
 
+## 1.7.0 - 2026-08-04
+
+### What's Changed
+
+* Added `webhook` to API request payload, a custom parameter that must be implemented yourself in self-hosted Mailcoach.
+
 ## 1.6.0 - 2026-07-30
 
 ### What's Changed

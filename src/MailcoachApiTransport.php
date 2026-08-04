@@ -14,6 +14,7 @@ use Spatie\MailcoachMailer\Headers\MailerHeader;
 use Spatie\MailcoachMailer\Headers\ReplacementHeader;
 use Spatie\MailcoachMailer\Headers\StoreContentHeader;
 use Spatie\MailcoachMailer\Headers\TransactionalMailHeader;
+use Spatie\MailcoachMailer\Headers\WebhookHeader;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Exception\HttpTransportException;
 use Symfony\Component\Mailer\Exception\TransportException;
@@ -131,6 +132,10 @@ class MailcoachApiTransport extends AbstractApiTransport
 
             if ($header instanceof GoogleAnalyticsDomainsHeader) {
                 $payload['google_analytics_domains'] = json_decode($header->getValue(), true);
+            }
+
+            if ($header instanceof WebhookHeader) {
+                $payload['webhook'] = $header->getValue();
             }
         }
 
